@@ -1,0 +1,16 @@
+import { strict as assert } from 'node:assert';
+import {shareId,parseLine,zone} from './protocol.js';
+assert.equal(shareId('https://makecode.com/_70x8W6VuYeaY'),'_70x8W6VuYeaY');
+assert.equal(shareId('https://arcade.makecode.com/S12345-12345-12345-12345'),'S12345-12345-12345-12345');
+assert.throws(()=>shareId('https://evil.example/_abc'));
+assert.throws(()=>shareId('javascript:alert(1)'));
+assert.equal(parseLine('{"distance":150}'),150);
+for(const s of ['booting','null','{"distance":8190}','{"distance":"150"}','{"distance":-1}','{"error":"tof"}'])assert.equal(parseLine(s),null);
+assert.equal(zone(90,100,250,'middle'),'near');
+assert.equal(zone(105,100,250,'near'),'near');
+assert.equal(zone(110,100,250,'near'),'middle');
+assert.equal(zone(260,100,250,'middle'),'far');
+assert.equal(zone(245,100,250,'far'),'far');
+assert.equal(zone(240,100,250,'far'),'middle');
+assert.equal(zone(150,250,100,'middle'),'invalid');
+console.log('Protocol checks passed (URL, serial data, thresholds and hysteresis).');
