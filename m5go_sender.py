@@ -12,7 +12,7 @@ label = M5TextBox(20, 40, 'Arcade sensor', lcd.FONT_DejaVu24, 0xFFFFFF)
 while True:
     try:
         distance = tof.distance
-        print(json.dumps({'distance': distance}))
+        print(json.dumps({'distance': distance, 'buttonA': btnA.isPressed()}))
     except Exception:
-        print('{"error":"tof"}')
+        print(json.dumps({'buttonA': btnA.isPressed()}))
     wait_ms(50)
