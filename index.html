@@ -58,11 +58,16 @@
 <li>各入力のボタンを割り当て、「入力を開始／再開」を押します。設定を変更した場合も、もう一度「入力を開始／再開」を押します。</li>
 </ol>
 <p>PCへの中継アプリのインストールは不要です。M5GOがPCで認識されるUSBドライバーと、UIFlow 1のファームウェアは必要です。USBでの実機動作は未確認です。</p>
-<details><summary>ゲームの作り方・通信仕様</summary>
+<details><summary>現在値の更新が遅いとき</summary>
+<p>各入力の「前回との受信間隔」は、ブラウザにその入力のデータが届いた間隔です。同じ値でも受信回数は増えます。USBでまとめて届いた場合は短い間隔になるため、センサー自体の測定時間とは限りません。</p>
+<ul><li>間隔が1000 ms程度以上なら、UIFlowの「停止」ブロックの数値と単位を確認してください。指定は「50 [ミリ秒]停止」です。「50 [秒]停止」ではありません。</li>
+<li>待ち時間を短くするには「10 [ミリ秒]停止」で試せます。ただしToFの測定時間も加わるため、10 msごとに必ず更新されるわけではありません。</li>
+<li>受信回数が増えているのに値が変わらない場合は、距離の読み取りブロックが「ずっと」の内側に入っているか確認してください。</li></ul>
+</details><details><summary>ゲームの作り方・通信仕様</summary>
 <p>Arcadeでは通常の「コントローラーでスプライトを動かす」や「Aボタンが押されたとき」を使います。保存後に「共有」でURLを作り、上の欄へ貼り付けます。編集後は必要に応じて再共有してください。</p>
 <p>USBは115200 bps。上のブロックは、距離を <code>{"distance":150}</code>、本体Aボタンを <code>{"buttonA":1}</code> または <code>{"buttonA":0}</code> として、別々の行で繰り返し送ります。1行にまとめて <code>{"distance":150,"buttonA":1}</code> と送る形式にも対応しています。</p>
 <p>入力名を設定欄と一致させてください。distance はmm、ほかのアナログ入力は送信する数値の単位で境界を設定します。デジタルは 1 / true がON、0 / false がOFFです。OFFの値も必ず送ってください。各入力は1秒以上更新されないと解除されます。</p>
 <p>追加のセンサーを使う場合は、UIFlow側にも読み取りと「［ ］をシリアル出力する」のブロックを追加します。ページを離れたときは入力を解除します。戻ったら「入力を開始／再開」を押してください。</p>
 <p>MakeCodeのシミュレーターへのメッセージ送信を利用しています。公式サービス側の変更で調整が必要になる場合があります。</p>
 <a href="https://github.com/microsoft/pxt-arcade/blob/master/share/src/components/simulator.ts">MakeCodeの入力実装</a> · <a href="https://docs.m5stack.com/en/uiflow/blockly/unit/tof">M5Stack ToF資料</a> · <a href="https://docs.m5stack.com/en/uiflow/blockly/generic/text">UIFlowのテキストブロック</a>
-<p>表の名称は、<a href="https://flow.m5stack.com/assets/blockly/language/ja.json">UIFlow 1本体の日本語表示データ</a>とテキストメニューの実画面を確認しています。</p></details></section></main><script type="module" src="app.js?v=2"></script></html>
+<p>表の名称は、<a href="https://flow.m5stack.com/assets/blockly/language/ja.json">UIFlow 1本体の日本語表示データ</a>とテキストメニューの実画面を確認しています。</p></details></section></main><script type="module" src="app.js?v=5"></script></html>

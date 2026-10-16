@@ -18,6 +18,7 @@ function render() {
       <div class="row"><label>入力名<input data-prop="field" maxlength="32"></label><button class="secondary remove" type="button">削除</button></div>
       ${r.type==='analog'?`<div class="row">${number(r.low,'low','境界1')}${number(r.high,'high','境界2')}</div><div class="row assignments">${picker(r.below,'below','境界1より小さい')}${picker(r.middle,'middle','境界1以上・境界2未満')}${picker(r.above,'above','境界2以上')}</div>${number(r.margin,'margin','境界の揺れを抑える幅（0で無効）')}`:picker(r.on,'on','ONのときに押すボタン')}
       <p class="ruleValue">現在値：<output>データ待ち</output></p>
+      <p class="receiveStats note"></p>
       <label class="testControl">${r.type==='analog'?`テスト値<input data-test type="number" step="any">`:`<input data-test type="checkbox"> テストでONにする`}</label>
       <p class="ruleError" role="status"></p>`;
     el.querySelector('[data-prop=field]').value=r.field;
@@ -44,6 +45,14 @@ export function initMappings(callback) {
 }
 export function getRules(){return rules;}
 export function testSamples(){return Object.fromEntries(rules.map(r=>[r.field,{value:r.test,time:Date.now()}]));}
-export function showResult(result,isTest){
-  for(const r of rules){r.element.querySelector('output').textContent=result.values[r.id]??'設定を確認';r.element.querySelector('.ruleError').textContent=result.errors.includes(r.id)?'入力名は英字で始まる半角英数字・_。境界1 < 境界2、揺れ幅は境界の差の半分以下にしてください。':'';r.element.querySelector('[data-test]').disabled=!isTest;}
+function setText(el,text){if(el.textContent!==text)el.textContent=text;}
+export function showResult(result,isTest,samples={}){
+  for(const r of rules){
+    setText(r.element.querySelector('output'),result.values[r.id]??'設定を確認');
+    setText(r.element.querySelector('.ruleError'),result.errors.includes(r.id)?'入力名は英字で始まる半角英数字・_。境界1 < 境界2、揺れ幅は境界の差の半分以下にしてください。':'');
+    r.element.querySelector('[data-test]').disabled=!isTest;
+    const sample=samples[r.field];
+    const age=sample?Math.floor((Date.now()-sample.time)/100)*100:null;
+    setText(r.element.querySelector('.receiveStats'),isTest?'':sample?`受信 ${sample.count}回 · 前回との受信間隔 ${sample.interval===null?'—':sample.interval} ms · 最終受信から ${age} ms`:'まだ受信していません');
+  }
 }
