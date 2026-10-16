@@ -1,4 +1,4 @@
-import {BUTTONS,validRule} from './mapping.js';
+import {BUTTONS,validRule} from './mapping.js?v=6';
 const host = document.getElementById('rules');
 const defaults = [
   {id:'distance',field:'distance',type:'analog',low:100,high:250,margin:10,below:'4',middle:'',above:'5',test:170},

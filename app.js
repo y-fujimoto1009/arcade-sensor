@@ -1,6 +1,6 @@
 import {shareId} from './protocol.js';
-import {parsePacket,mapInputs} from './mapping.js';
-import {initMappings,getRules,testSamples,showResult} from './mapping-ui.js?v=5';
+import {parsePacket,mapInputs,INPUT_TIMEOUT_MS} from './mapping.js?v=6';
+import {initMappings,getRules,testSamples,showResult} from './mapping-ui.js?v=6';
 const $=id=>document.getElementById(id),frame=$('game');
 let port,reader,reading=false,active=false,lastData=0,lastZone={},pressed=new Set(),manual=new Set(),loaded=false;
 const source=()=>document.querySelector('[name=source]:checked').value;
@@ -18,7 +18,7 @@ function tick() {
   lastZone=result.states;
   keys([...manual,...result.keys]);
   $('action').textContent=pressed.size?[...pressed].map(k=>['A','B','↑','↓','←','→'][k]).join(' + '):'停止';
-  $('inputStatus').textContent=result.errors.length?'設定に誤りがある入力は停止しています。':source()==='test'?'テスト入力中':Date.now()-lastData>1000?'データ待ち：入力を解除しました。':'センサー入力中';
+  $('inputStatus').textContent=result.errors.length?'設定に誤りがある入力は停止しています。':source()==='test'?'テスト入力中':Date.now()-lastData>=INPUT_TIMEOUT_MS?'データ待ち：入力を解除しました。':'センサー入力中';
 }
 initMappings(()=>{stop();samples=Object.create(null);tick();});
 let loadTimer;

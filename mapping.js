@@ -1,3 +1,4 @@
+export const INPUT_TIMEOUT_MS = 250;
 export const BUTTONS = [['','なし'],['2','↑'],['3','↓'],['4','←'],['5','→'],['0','A'],['1','B']];
 export function parsePacket(line) {
   try {
@@ -24,7 +25,7 @@ export function mapInputs(rules, samples, previous = {}, now = Date.now()) {
   for (const r of rules) {
     if (!validRule(r)) { errors.push(r.id); continue; }
     const sample = samples[r.field];
-    if (!sample || now - sample.time > 1000) { values[r.id] = 'データ待ち'; continue; }
+    if (!sample || now - sample.time >= INPUT_TIMEOUT_MS) { values[r.id] = 'データ待ち'; continue; }
     const v = sample.value;
     let key = '';
     if (r.type === 'digital') {
