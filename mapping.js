@@ -1,4 +1,4 @@
-export const INPUT_TIMEOUT_MS = 250;
+export const INPUT_TIMEOUT_MS = 50;
 export const BUTTONS = [['','なし'],['2','↑'],['3','↓'],['4','←'],['5','→'],['0','A'],['1','B']];
 export function parsePacket(line) {
   try {

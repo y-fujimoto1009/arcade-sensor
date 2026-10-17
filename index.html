@@ -66,8 +66,8 @@
 </details><details><summary>ゲームの作り方・通信仕様</summary>
 <p>Arcadeでは通常の「コントローラーでスプライトを動かす」や「Aボタンが押されたとき」を使います。保存後に「共有」でURLを作り、上の欄へ貼り付けます。編集後は必要に応じて再共有してください。</p>
 <p>USBは115200 bps。上のブロックは、距離を <code>{"distance":150}</code>、本体Aボタンを <code>{"buttonA":1}</code> または <code>{"buttonA":0}</code> として、別々の行で繰り返し送ります。1行にまとめて <code>{"distance":150,"buttonA":1}</code> と送る形式にも対応しています。</p>
-<p>入力名を設定欄と一致させてください。distance はmm、ほかのアナログ入力は送信する数値の単位で境界を設定します。デジタルは 1 / true がON、0 / false がOFFです。OFFの値も必ず送ってください。各入力は250ミリ秒以上更新されないと「データ待ち」になり、ボタンを解除します（画面の確認周期により最大約50ミリ秒の差があります）。</p>
+<p>入力名を設定欄と一致させてください。distance はmm、ほかのアナログ入力は送信する数値の単位で境界を設定します。デジタルは 1 / true がON、0 / false がOFFです。OFFの値も必ず送ってください。各入力は50ミリ秒以上更新されないと「データ待ち」になり、ボタンを解除します（判定は10ミリ秒周期です。送信間隔が50ミリ秒以上の場合は、次の受信前にも解除されます）。</p>
 <p>追加のセンサーを使う場合は、UIFlow側にも読み取りと「［ ］をシリアル出力する」のブロックを追加します。ページを離れたときは入力を解除します。戻ったら「入力を開始／再開」を押してください。</p>
 <p>MakeCodeのシミュレーターへのメッセージ送信を利用しています。公式サービス側の変更で調整が必要になる場合があります。</p>
 <a href="https://github.com/microsoft/pxt-arcade/blob/master/share/src/components/simulator.ts">MakeCodeの入力実装</a> · <a href="https://docs.m5stack.com/en/uiflow/blockly/unit/tof">M5Stack ToF資料</a> · <a href="https://docs.m5stack.com/en/uiflow/blockly/generic/text">UIFlowのテキストブロック</a>
-<p>表の名称は、<a href="https://flow.m5stack.com/assets/blockly/language/ja.json">UIFlow 1本体の日本語表示データ</a>とテキストメニューの実画面を確認しています。</p></details></section></main><script type="module" src="app.js?v=6"></script></html>
+<p>表の名称は、<a href="https://flow.m5stack.com/assets/blockly/language/ja.json">UIFlow 1本体の日本語表示データ</a>とテキストメニューの実画面を確認しています。</p></details></section></main><script type="module" src="app.js?v=7"></script></html>

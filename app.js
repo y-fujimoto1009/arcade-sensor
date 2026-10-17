@@ -1,6 +1,6 @@
 import {shareId} from './protocol.js';
-import {parsePacket,mapInputs,INPUT_TIMEOUT_MS} from './mapping.js?v=6';
-import {initMappings,getRules,testSamples,showResult} from './mapping-ui.js?v=6';
+import {parsePacket,mapInputs,INPUT_TIMEOUT_MS} from './mapping.js?v=7';
+import {initMappings,getRules,testSamples,showResult} from './mapping-ui.js?v=7';
 const $=id=>document.getElementById(id),frame=$('game');
 let port,reader,reading=false,active=false,lastData=0,lastZone={},pressed=new Set(),manual=new Set(),loaded=false;
 const source=()=>document.querySelector('[name=source]:checked').value;
@@ -38,7 +38,7 @@ $('stop').onclick=stop;
 document.querySelectorAll('[name=source]').forEach(el=>el.onchange=()=>{stop();samples=Object.create(null);if(source()==='usb'&&reading&&loaded){active=true;$('inputStatus').textContent='センサーのデータを待っています。';}});
 
 document.querySelectorAll('[data-key]').forEach(b=>{b.onpointerdown=e=>{if(source()!=='test'||!loaded)return;e.preventDefault();b.setPointerCapture(e.pointerId);active=true;manual.add(Number(b.dataset.key));tick();};const up=()=>{manual.delete(Number(b.dataset.key));if(active&&source()==='test')tick();};b.onpointerup=up;b.onpointercancel=up;b.onlostpointercapture=up;});
-setInterval(tick,50);
+setInterval(tick,10);
 window.addEventListener('blur',stop);document.addEventListener('visibilitychange',()=>{if(document.hidden)stop();});
 $('connect').onclick=async()=>{if(!navigator.serial){$('serialStatus').textContent='Web Serial対応のChrome / Edgeで開いてください。';return;}$('connect').disabled=true;try{port=await navigator.serial.requestPort();await port.open({baudRate:115200});samples=Object.create(null);reading=true;reader=port.readable.getReader();$('disconnect').disabled=false;$('serialStatus').textContent='USB接続中（115200 bps）';document.querySelector('[value=usb]').checked=true;release();active=loaded;lastData=Date.now();let buffer='',decoder=new TextDecoder();while(reading){const {value,done}=await reader.read();if(done)break;buffer+=decoder.decode(value,{stream:true});let end;while((end=buffer.indexOf('\n'))>=0){const line=buffer.slice(0,end).trim();buffer=buffer.slice(end+1);const packet=parsePacket(line);if(packet!==null&&source()==='usb'){lastData=Date.now();for(const [field,value] of Object.entries(packet)){const previous=samples[field];samples[field]={value,time:lastData,interval:previous?lastData-previous.time:null,count:(previous?.count??0)+1};}tick();}}if(buffer.length>4096)buffer='';}}catch(e){$('serialStatus').textContent=e.name==='NotFoundError'?'接続をキャンセルしました。':'接続できませんでした：'+e.message;}finally{reading=false;stop();reader?.releaseLock();reader=null;if(port){try{await port.close();}catch{}}port=null;$('connect').disabled=false;$('disconnect').disabled=true;if($('serialStatus').textContent.startsWith('USB接続中'))$('serialStatus').textContent='USB接続を終了しました。';}};
 $('disconnect').onclick=async()=>{reading=false;await reader?.cancel();};

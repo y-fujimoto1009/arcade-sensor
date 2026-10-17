@@ -23,11 +23,11 @@ assert.deepEqual(bad.keys,[]);assert.deepEqual(bad.errors,['a']);
 assert.deepEqual(mapInputs([{...analog,field:'tilt',low:-10,high:10,margin:0,below:'2',above:'3'}],{tilt:{value:-12,time:1000}},{},1000).keys,[2]);
 console.log('Mapping checks passed: analog ranges, hysteresis, digital ON/OFF, simultaneous inputs, shared buttons, per-channel timeout and invalid data.');
 
-// Keep the input until 249 ms, then clear its button and value at 250 ms.
-const fresh = mapInputs([analog,digital],samples(50,1),{},1249);
+// Keep the input until 49 ms, then clear its button and value at 50 ms.
+const fresh = mapInputs([analog,digital],samples(50,1),{},1049);
 assert.deepEqual(fresh.keys,[4,0]);
-const expired = mapInputs([analog,digital],samples(50,1),{},1250);
+const expired = mapInputs([analog,digital],samples(50,1),{},1050);
 assert.deepEqual(expired.keys,[]);
 assert.equal(expired.values.a,'データ待ち');
 assert.equal(expired.values.d,'データ待ち');
-console.log('250 ms timeout boundary checks passed.');
+console.log('50 ms timeout boundary checks passed.');
