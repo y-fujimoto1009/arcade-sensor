@@ -1,73 +1,14 @@
 <!doctype html>
 <html lang="ja"><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>M5GO × MakeCode Arcade</title>
-<link rel="stylesheet" href="style.css?v=2">
+<link rel="stylesheet" href="style.css?v=8">
 <header><span>メディア基礎演習 · 体験型ゲーム</span><h1>M5GO × MakeCode Arcade</h1><p>センサーやスイッチを、Arcadeの操作ボタンに割り当てます。</p></header>
-<main><section class="settings"><h2>1. ゲームを読み込む</h2><label for="url">MakeCode Arcadeの共有URL</label><div class="row"><input id="url" placeholder="https://arcade.makecode.com/…"><button id="load">読み込む</button></div><button id="sample" class="secondary">動作確認用ゲームを開く</button><p id="gameStatus" role="status">まずは動作確認用ゲームで試せます。</p>
-<h2>2. 入力を選ぶ</h2><div class="row"><label><input type="radio" name="source" value="test" checked> 画面でテスト</label><label><input type="radio" name="source" value="usb"> M5GO（USB）</label></div>
+<main><section class="loader"><h2>ゲームを読み込む</h2><label for="url">MakeCode Arcadeの共有URL</label><div class="row"><input id="url" placeholder="https://arcade.makecode.com/…"><button id="load">読み込む</button></div><button id="sample" class="secondary">動作確認用ゲームを開く</button><p id="gameStatus" role="status">まずは動作確認用ゲームで試せます。</p>
+</section><section class="game"><div class="gameTop"><h2>ゲーム画面</h2><a href="https://arcade.makecode.com/" target="_blank" rel="noopener">Arcadeでゲームを作る ↗</a></div><iframe id="game" title="MakeCode Arcadeのゲーム" allow="autoplay; fullscreen" allowfullscreen></iframe><div class="pad"><button data-key="4">←</button><button data-key="2">↑</button><button data-key="3">↓</button><button data-key="5">→</button><button data-key="0">A</button><button data-key="1">B</button></div></section>
+<section class="settings"><h2>コントローラー設定</h2><div class="row"><label><input type="radio" name="source" value="test" checked> 画面でテスト</label><label><input type="radio" name="source" value="usb"> M5GO（USB）</label></div>
 <div class="row"><button id="connect">USB接続</button><button id="disconnect" class="secondary" disabled>切断</button></div><p id="serialStatus" role="status">未接続 · Chrome / Edgeを使用してください。</p>
-<h2>3. 入力とボタンを設定</h2>
+<h2>入力とボタンの割り当て</h2>
 <p class="note">各入力に ↑・↓・←・→・A・B・なし を割り当てます。設定はこのブラウザに保存されます。</p>
 <div id="rules"></div><div class="row"><button id="add-analog" class="secondary">＋ アナログ入力</button><button id="add-digital" class="secondary">＋ デジタル入力</button></div>
 <p class="note">アナログは数値の3範囲、デジタルはONに対応します。OFFやデータ途絶時は解除。同じボタンに複数入力を割り当てた場合は、どれかがONなら押したままになります。最大12入力。</p>
 <div class="reading"><span>ゲームへの入力</span><b id="action">停止</b></div><div class="row"><button id="testStart">入力を開始／再開</button><button id="stop" class="secondary">入力を停止</button></div><p id="inputStatus" role="status">入力は停止中です。</p>
-</section><section class="game"><div class="gameTop"><h2>ゲーム画面</h2><a href="https://arcade.makecode.com/" target="_blank" rel="noopener">Arcadeでゲームを作る ↗</a></div><iframe id="game" title="MakeCode Arcadeのゲーム" allow="autoplay; fullscreen" allowfullscreen></iframe><p>動作確認用ゲーム：距離でキャラクターを移動。Aボタンで色が変わります。</p><div class="pad"><button data-key="4">←</button><button data-key="2">↑</button><button data-key="3">↓</button><button data-key="5">→</button><button data-key="0">A</button><button data-key="1">B</button></div><p class="note">ボタンを押している間だけ入力します。テスト入力が有効なときに使えます。</p></section>
-<section class="instructions"><h2>M5GOの準備（UIFlow 1・ブロック）</h2>
-<ol>
-<li>ToF距離センサーをM5GOのPort Aにつなぎます。</li>
-<li>UIFlow 1のブロック画面で、使用する機種を選び、UnitsにToFを追加してPort Aを指定します。</li>
-<li>下の表からブロックを取り出し、その下の組み立て手順に沿ってつなぎます。</li>
-</ol>
-<h3>使うブロックと場所</h3>
-<p>日本語表示のUIFlow 1に合わせた名称です。［ ］は入力欄、▼は選択欄を表します。</p>
-<div style="overflow-x:auto"><table style="width:100%;border-collapse:collapse;text-align:left;line-height:1.8" border="1" cellpadding="10">
-<thead><tr><th>場所</th><th>画面で探すブロック</th><th>使い方・見分け方</th></tr></thead><tbody>
-<tr><td>イベント</td><td><strong>ずっと</strong></td><td>内側に処理を入れるブロック。Setupの下につなぎ、今回の処理をすべて内側に入れます。</td></tr>
-<tr><td>テキスト</td><td><strong>［ ］をシリアル出力する</strong></td><td>オレンジ色。「［ ］の長さ」の下にあるブロック。これを3個使います。以前の説明の「print」は、このブロックのことです。</td></tr>
-<tr><td>テキスト</td><td><strong>“［ ］”</strong></td><td>一番上の、文字を入力するブロック。「(unescaped)」付きではない方です。下に示す文字を入力します。</td></tr>
-<tr><td>テキスト</td><td><strong>［ ］＋［ ］</strong></td><td>「テキストに変換する」の下にあるオレンジ色の＋。2個使って3つの値をつなぎます。数値も文字に変換されるので、別の変換ブロックは不要です。</td></tr>
-<tr><td>Units → ToF</td><td><strong>［tof_0 ▼］と測定物との距離[mm]を読み込む</strong></td><td>先にToFをPort Aとして追加します。tof_0の部分は追加したユニットの名前です。</td></tr>
-<tr><td>論理</td><td><strong>もし［ ］であれば</strong><br><strong>そうでなければ</strong></td><td>歯車から「else」を追加して「そうでなければ」の段を作ります。最初からその段があるものは、そのまま使えます。</td></tr>
-<tr><td>イベント</td><td><strong>ボタン［A ▼］が［pressed ▼］である</strong></td><td>「もし」の条件欄に入る、状態を調べるブロック。Aとpressedを選びます。「ボタンAが押されたとき」というイベント開始ブロックは使いません。</td></tr>
-<tr><td>タイマー</td><td><strong>［50］[ミリ秒]停止</strong></td><td>数値を50にします。「[秒]停止」と区別してください。秒のブロックを使う場合は0.05を指定します。</td></tr>
-</tbody></table></div>
-<h3>1. 距離を送るブロックを組む</h3>
-<ol>
-<li>「［ ］＋［ ］」を2個取り出し、1個目の左の穴に2個目を入れます。</li>
-<li>内側の＋の左に “［ ］” を入れて <code>{"distance":</code> と入力し、右に「［tof_0 ▼］と測定物との距離[mm]を読み込む」を入れます。</li>
-<li>外側の＋の右に “［ ］” を入れて <code>}</code> と入力します。</li>
-<li>できた＋のかたまりを「［ ］をシリアル出力する」の穴に入れます。</li>
-</ol>
-<pre style="overflow-x:auto;background:#fff2e7;padding:18px;border-radius:8px;line-height:1.8">［ ［ “ {"distance": ” ＋ ［ToFの距離ブロック］ ］ ＋ “ } ” ］をシリアル出力する</pre>
-<p>図の外側の “ ” はブロックにもともと描かれている引用符です。入力する文字は <code>{"distance":</code> と <code>}</code> だけです。distanceを囲む半角の <code>"</code> は必要です。</p>
-<h3>2. 本体Aボタンを送る処理と待ち時間を追加する</h3>
-<p>「もし」の条件に「ボタン［A ▼］が［pressed ▼］である」を入れます。「であれば」と「そうでなければ」に、それぞれ「［ ］をシリアル出力する」を入れ、テキストを下のとおり設定します。</p>
-<pre style="overflow-x:auto;background:#edf7f6;padding:18px;border-radius:8px;line-height:1.8">ずっと
- ├ ［1で組んだ距離の文字列］をシリアル出力する
- │
- ├ もし［ボタン［A ▼］が［pressed ▼］である］であれば
- │    ［ “ {"buttonA":1} ” ］をシリアル出力する
- │  そうでなければ
- │    ［ “ {"buttonA":0} ” ］をシリアル出力する
- │
- └ ［50］[ミリ秒]停止</pre>
-<p>ボタンを離している間の <code>{"buttonA":0}</code> も毎回送ります。組み上がったら、以下の手順でWebページにつなぎます。</p>
-<ol start="4">
-<li>組んだブロックのプログラムをM5GOにダウンロードして実行します。</li>
-<li>UIFlow側のUSB接続やシリアルモニターを閉じ、このページの「USB接続」でM5GOのポートを選択します。</li>
-<li>「M5GO（USB）」を選び、入力名を確認します。距離は <code>distance</code>（アナログ）、本体Aボタンは <code>buttonA</code>（デジタル）です。</li>
-<li>各入力のボタンを割り当て、「入力を開始／再開」を押します。設定を変更した場合も、もう一度「入力を開始／再開」を押します。</li>
-</ol>
-<p>PCへの中継アプリのインストールは不要です。M5GOがPCで認識されるUSBドライバーと、UIFlow 1のファームウェアは必要です。USBでの実機動作は未確認です。</p>
-<details><summary>現在値の更新が遅いとき</summary>
-<p>各入力の「前回との受信間隔」は、ブラウザにその入力のデータが届いた間隔です。同じ値でも受信回数は増えます。USBでまとめて届いた場合は短い間隔になるため、センサー自体の測定時間とは限りません。</p>
-<ul><li>間隔が1000 ms程度以上なら、UIFlowの「停止」ブロックの数値と単位を確認してください。指定は「50 [ミリ秒]停止」です。「50 [秒]停止」ではありません。</li>
-<li>待ち時間を短くするには「10 [ミリ秒]停止」で試せます。ただしToFの測定時間も加わるため、10 msごとに必ず更新されるわけではありません。</li>
-<li>受信回数が増えているのに値が変わらない場合は、距離の読み取りブロックが「ずっと」の内側に入っているか確認してください。</li></ul>
-</details><details><summary>ゲームの作り方・通信仕様</summary>
-<p>Arcadeでは通常の「コントローラーでスプライトを動かす」や「Aボタンが押されたとき」を使います。保存後に「共有」でURLを作り、上の欄へ貼り付けます。編集後は必要に応じて再共有してください。</p>
-<p>USBは115200 bps。上のブロックは、距離を <code>{"distance":150}</code>、本体Aボタンを <code>{"buttonA":1}</code> または <code>{"buttonA":0}</code> として、別々の行で繰り返し送ります。1行にまとめて <code>{"distance":150,"buttonA":1}</code> と送る形式にも対応しています。</p>
-<p>入力名を設定欄と一致させてください。distance はmm、ほかのアナログ入力は送信する数値の単位で境界を設定します。デジタルは 1 / true がON、0 / false がOFFです。OFFの値も必ず送ってください。各入力は50ミリ秒以上更新されないと「データ待ち」になり、ボタンを解除します（判定は10ミリ秒周期です。送信間隔が50ミリ秒以上の場合は、次の受信前にも解除されます）。</p>
-<p>追加のセンサーを使う場合は、UIFlow側にも読み取りと「［ ］をシリアル出力する」のブロックを追加します。ページを離れたときは入力を解除します。戻ったら「入力を開始／再開」を押してください。</p>
-<p>MakeCodeのシミュレーターへのメッセージ送信を利用しています。公式サービス側の変更で調整が必要になる場合があります。</p>
-<a href="https://github.com/microsoft/pxt-arcade/blob/master/share/src/components/simulator.ts">MakeCodeの入力実装</a> · <a href="https://docs.m5stack.com/en/uiflow/blockly/unit/tof">M5Stack ToF資料</a> · <a href="https://docs.m5stack.com/en/uiflow/blockly/generic/text">UIFlowのテキストブロック</a>
-<p>表の名称は、<a href="https://flow.m5stack.com/assets/blockly/language/ja.json">UIFlow 1本体の日本語表示データ</a>とテキストメニューの実画面を確認しています。</p></details></section></main><script type="module" src="app.js?v=7"></script></html>
+</section></main><script type="module" src="app.js?v=8"></script></html>

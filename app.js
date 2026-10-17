@@ -22,7 +22,7 @@ function tick() {
 }
 initMappings(()=>{stop();samples=Object.create(null);tick();});
 let loadTimer;
-function load(params){stop();loaded=false;frame.onload=null;clearTimeout(loadTimer);frame.src='https://arcade.makecode.com/--run?'+Object.entries({...params,sendBuilt:'1',hideSimButtons:'1',single:'1'}).map(([k,v])=>k+'='+encodeURIComponent(v)).join('&');$('gameStatus').textContent='ゲームを準備しています…（初回は時間がかかります）';loadTimer=setTimeout(()=>{if(!loaded)$('gameStatus').textContent='読み込みに時間がかかっています。共有URLとネット接続を確認して再読み込みしてください。';},60000);}
+function load(params){stop();loaded=false;frame.onload=null;clearTimeout(loadTimer);frame.src='https://arcade.makecode.com/--run?'+Object.entries({...params,sendBuilt:'1',hideSimButtons:'1',single:'1',fullscreen:'1'}).map(([k,v])=>k+'='+encodeURIComponent(v)).join('&');$('gameStatus').textContent='ゲームを準備しています…（初回は時間がかかります）';loadTimer=setTimeout(()=>{if(!loaded)$('gameStatus').textContent='読み込みに時間がかかっています。共有URLとネット接続を確認して再読み込みしてください。';},60000);}
 $('load').onclick=()=>{try{load({id:shareId($('url').value)});}catch(e){$('gameStatus').textContent=e.message;}};
 const demo=`scene.setBackgroundColor(9)
 let player = sprites.create(img\`\n. . 2 2 2 2 . .\n. 2 2 2 2 2 2 .\n2 2 1 2 2 1 2 2\n2 2 2 2 2 2 2 2\n2 2 2 1 1 2 2 2\n. 2 2 2 2 2 2 .\n. . 2 . . 2 . .\n. 2 2 . . 2 2 .\n\`, SpriteKind.Player)
