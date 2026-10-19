@@ -20,7 +20,7 @@ function script(url) {
   }));
   return scripts.get(url);
 }
-export function initTM(onReset) {
+export function initTM(onReset,onReady=()=>{}) {
   const $=id=>document.getElementById(id), canvas=$('tm-preview'), ctx=canvas.getContext('2d');
   const video=document.createElement('video'); video.muted=true; video.playsInline=true;
   let model, type, stream, generation=0, predictions=[], updated=0, running=false;
@@ -65,9 +65,9 @@ export function initTM(onReset) {
       const next=await navigator.mediaDevices.getUserMedia({video:{width:640,height:480},audio:false});
       if(token!==generation){next.getTracks().forEach(t=>t.stop());return;}
       stream=next;video.srcObject=stream;await video.play();if(token!==generation)return;
-      running=true;$('tm-stop').disabled=false;
+      running=true;$('tm-stop').disabled=false;onReady();
       stream.getVideoTracks()[0].onended=stopCamera;
-      $('tm-status').textContent='認識中。ゲームを操作するには「入力を開始／再開」を押してください。';
+      $('tm-status').textContent='認識中。ゲーム読み込み済みなら自動で入力を開始します。';
       async function loop(){
         if(token!==generation)return;
         try {
@@ -88,5 +88,14 @@ export function initTM(onReset) {
   $('tm-stop').onclick=stopCamera;
   document.addEventListener('visibilitychange',()=>{if(document.hidden)stopCamera();});
   window.addEventListener('pagehide',stopCamera);
-  return {stopCamera,get running(){return running;},getKeys:()=>predictionKeys(predictions,assignments,Number($('tm-threshold').value)/100,Date.now()-updated)};
+  function status(){
+    if(!updated || Date.now()-updated>=1000)return '認識結果を待っています。';
+    const best=predictions.reduce((a,b)=>b.probability>(a?.probability??-1)?b:a,null);
+    if(!best)return '認識結果を待っています。';
+    const label=best.className+'（'+Math.round(best.probability*100)+'%）';
+    if(best.probability<Number($('tm-threshold').value)/100)return label+'：確信度が下限未満です。';
+    const assigned=assignments.get(best.className);
+    return label+' → '+(BUTTONS.find(([key])=>key===assigned)?.[1]??'なし');
+  }
+  return {stopCamera,status,get running(){return running;},getKeys:()=>predictionKeys(predictions,assignments,Number($('tm-threshold').value)/100,Date.now()-updated)};
 }
