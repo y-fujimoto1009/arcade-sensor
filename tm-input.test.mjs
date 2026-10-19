@@ -1,0 +1,12 @@
+import assert from 'node:assert/strict';
+import {modelBase,predictionKeys} from './tm-input.js';
+assert.equal(modelBase('https://teachablemachine.withgoogle.com/models/abc'), 'https://teachablemachine.withgoogle.com/models/abc/');
+assert.equal(modelBase('https://teachablemachine.withgoogle.com/models/abc/model.json'), 'https://teachablemachine.withgoogle.com/models/abc/');
+assert.throws(()=>modelBase('https://evil.example/models/abc/'));
+const map=new Map([['left','4'],['rest',''],['jump','0']]);
+assert.deepEqual(predictionKeys([{className:'left',probability:.9},{className:'jump',probability:.85}],map,.8,10),[4]);
+assert.deepEqual(predictionKeys([{className:'rest',probability:.95},{className:'left',probability:.9}],map,.8,10),[]);
+assert.deepEqual(predictionKeys([{className:'left',probability:.79}],map,.8,10),[]);
+assert.deepEqual(predictionKeys([{className:'left',probability:.99}],map,.8,1000),[]);
+assert.deepEqual(predictionKeys([],map,.8,0),[]);
+console.log('TM mapping tests passed');

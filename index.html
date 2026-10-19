@@ -1,14 +1,21 @@
 <!doctype html>
-<html lang="ja"><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>M5GO × MakeCode Arcade</title>
-<link rel="stylesheet" href="style.css?v=8">
-<header><span>メディア基礎演習 · 体験型ゲーム</span><h1>M5GO × MakeCode Arcade</h1><p>センサーやスイッチを、Arcadeの操作ボタンに割り当てます。</p></header>
+<html lang="ja"><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>センサー・カメラ × MakeCode Arcade</title>
+<link rel="stylesheet" href="style.css?v=9">
+<header><span>メディア基礎演習 · 体験型ゲーム</span><h1>センサー・カメラ × MakeCode Arcade</h1><p>センサーやスイッチを、Arcadeの操作ボタンに割り当てます。</p></header>
 <main><section class="loader"><h2>ゲームを読み込む</h2><label for="url">MakeCode Arcadeの共有URL</label><div class="row"><input id="url" placeholder="https://arcade.makecode.com/…"><button id="load">読み込む</button></div><button id="sample" class="secondary">動作確認用ゲームを開く</button><p id="gameStatus" role="status">まずは動作確認用ゲームで試せます。</p>
 </section><section class="game"><div class="gameTop"><h2>ゲーム画面</h2><a href="https://arcade.makecode.com/" target="_blank" rel="noopener">Arcadeでゲームを作る ↗</a></div><iframe id="game" title="MakeCode Arcadeのゲーム" allow="autoplay; fullscreen" allowfullscreen></iframe><div class="pad"><button data-key="4">←</button><button data-key="2">↑</button><button data-key="3">↓</button><button data-key="5">→</button><button data-key="0">A</button><button data-key="1">B</button></div></section>
-<section class="settings"><h2>コントローラー設定</h2><div class="row"><label><input type="radio" name="source" value="test" checked> 画面でテスト</label><label><input type="radio" name="source" value="usb"> M5GO（USB）</label></div>
+<section class="settings"><h2>コントローラー設定</h2><div class="row"><label><input type="radio" name="source" value="test" checked> 画面でテスト</label><label><input type="radio" name="source" value="usb"> M5GO（USB）</label><label><input type="radio" name="source" value="tm"> Teachable Machine（カメラ）</label></div>
 <div class="row"><button id="connect">USB接続</button><button id="disconnect" class="secondary" disabled>切断</button></div><p id="serialStatus" role="status">未接続 · Chrome / Edgeを使用してください。</p>
-<h2>入力とボタンの割り当て</h2>
+<div id="tm-panel" hidden>
+<h2>画像・ポーズの認識</h2>
+<div class="row"><label>モデルの種類<select id="tm-type"><option value="image">画像</option><option value="pose">ポーズ</option></select></label><label>確信度の下限（%）<input id="tm-threshold" type="number" min="0" max="100" value="80"></label></div>
+<label for="tm-url">Teachable MachineのモデルURL</label><div class="row"><input id="tm-url" placeholder="https://teachablemachine.withgoogle.com/models/…/"><button id="tm-load">モデルを読み込む</button></div>
+<p class="note"><a href="https://teachablemachine.withgoogle.com/" target="_blank" rel="noopener">Teachable Machine ↗</a> の「モデルをエクスポート」→「モデルをアップロード」で取得したURLを貼り付けます。</p>
+<div class="tm-layout"><div><canvas id="tm-preview" width="300" height="300" aria-label="カメラ映像（左右反転）"></canvas><div class="row"><button id="tm-start" disabled>カメラを開始</button><button id="tm-stop" class="secondary" disabled>カメラを停止</button></div></div><div id="tm-classes"></div></div>
+<p class="note">最も確信度の高いクラスが下限以上のとき、そのボタンを押します。「なし」のクラスや下限未満では解除します。映像はこのブラウザ内で処理します。</p><p id="tm-status" role="status">モデルを読み込んでください。</p>
+</div><div id="sensor-panel"><h2>入力とボタンの割り当て</h2>
 <p class="note">各入力に ↑・↓・←・→・A・B・なし を割り当てます。設定はこのブラウザに保存されます。</p>
 <div id="rules"></div><div class="row"><button id="add-analog" class="secondary">＋ アナログ入力</button><button id="add-digital" class="secondary">＋ デジタル入力</button></div>
 <p class="note">アナログは数値の3範囲、デジタルはONに対応します。OFFやデータ途絶時は解除。同じボタンに複数入力を割り当てた場合は、どれかがONなら押したままになります。最大12入力。</p>
-<div class="reading"><span>ゲームへの入力</span><b id="action">停止</b></div><div class="row"><button id="testStart">入力を開始／再開</button><button id="stop" class="secondary">入力を停止</button></div><p id="inputStatus" role="status">入力は停止中です。</p>
-</section></main><script type="module" src="app.js?v=8"></script></html>
+</div><div class="reading"><span>ゲームへの入力</span><b id="action">停止</b></div><div class="row"><button id="testStart">入力を開始／再開</button><button id="stop" class="secondary">入力を停止</button></div><p id="inputStatus" role="status">入力は停止中です。</p>
+</section></main><script type="module" src="app.js?v=9"></script></html>
