@@ -7,7 +7,8 @@ let port,reader,reading=false,active=false,lastData=0,lastZone={},pressed=new Se
 const source=()=>document.querySelector('[name=source]:checked').value;
 // A WindowProxy permits indexed child-frame access across origins. Send directly
 // to Arcade's simulator, rather than synthesizing keyboard events in another page.
-function send(button,down){try{frame.contentWindow.frames[0]?.postMessage({type:'button-pressed',button,pressed:down},'*');}catch{}}
+function send(button,down){try{const host=frame.contentWindow;for(let i=0;i<host.frames.length;i++)host.frames[i].postMessage({type:'button-pressed',button,pressed:down},'*');}catch{}}
+
 function keys(next){const n=new Set(next);for(const k of pressed)if(!n.has(k))send(k,false);for(const k of n)if(!pressed.has(k))send(k,true);pressed=n;}
 function release(){keys([]);manual.clear();lastZone={};$('action').textContent='停止';}
 function stop(){active=false;release();$('inputStatus').textContent='入力は停止中です。';}
@@ -20,7 +21,7 @@ function updateSource(){
 function tick() {
   if(source()==='tm'){
     if(!active||document.hidden)return;
-    keys(tm.getKeys());
+    keys([...manual,...tm.getKeys()]);
     $('action').textContent=pressed.size?[...pressed].map(k=>['A','B','↑','↓','←','→'][k]).join(' + '):'停止';
     $('inputStatus').textContent=tm.running?tm.status():'カメラは停止中です。';
     return;
@@ -50,7 +51,15 @@ $('testStart').onclick=()=>{if(!loaded){$('inputStatus').textContent='ゲーム�
 $('stop').onclick=stop;
 document.querySelectorAll('[name=source]').forEach(el=>el.onchange=()=>{stop();updateSource();samples=Object.create(null);if(source()==='usb'&&reading&&loaded){active=true;$('inputStatus').textContent='センサーのデータを待っています。';}});
 
-document.querySelectorAll('[data-key]').forEach(b=>{b.onpointerdown=e=>{if(source()!=='test'||!loaded)return;e.preventDefault();b.setPointerCapture(e.pointerId);active=true;manual.add(Number(b.dataset.key));tick();};const up=()=>{manual.delete(Number(b.dataset.key));if(active&&source()==='test')tick();};b.onpointerup=up;b.onpointercancel=up;b.onlostpointercapture=up;});
+document.querySelectorAll('[data-key]').forEach(b=>{
+  const key=Number(b.dataset.key);let began=0,timer,lastPointer=0;
+  const down=()=>{if(!loaded){$('inputStatus').textContent='先にゲームを読み込んでください。';return false;}clearTimeout(timer);began=performance.now();active=true;manual.add(key);tick();return true;};
+  const up=()=>{clearTimeout(timer);timer=setTimeout(()=>{manual.delete(key);tick();},Math.max(0,150-(performance.now()-began)));};
+  b.onpointerdown=e=>{lastPointer=performance.now();if(down()){e.preventDefault();b.setPointerCapture(e.pointerId);}};
+  b.onpointerup=up;b.onpointercancel=()=>{clearTimeout(timer);manual.delete(key);tick();};b.onlostpointercapture=up;
+  // Keyboard and accessibility clicks do not necessarily emit pointer events.
+  b.onclick=()=>{if(performance.now()-lastPointer<500)return;if(down())up();};
+});
 setInterval(tick,10);
 window.addEventListener('blur',()=>{setTimeout(()=>{if(document.activeElement!==frame)stop();},0);});document.addEventListener('visibilitychange',()=>{if(document.hidden)stop();});
 $('connect').onclick=async()=>{if(!navigator.serial){$('serialStatus').textContent='Web Serial対応のChrome / Edgeで開いてください。';return;}$('connect').disabled=true;try{port=await navigator.serial.requestPort();await port.open({baudRate:115200});samples=Object.create(null);reading=true;reader=port.readable.getReader();$('disconnect').disabled=false;$('serialStatus').textContent='USB接続中（115200 bps）';document.querySelector('[value=usb]').checked=true;updateSource();release();active=loaded;lastData=Date.now();let buffer='',decoder=new TextDecoder();while(reading){const {value,done}=await reader.read();if(done)break;buffer+=decoder.decode(value,{stream:true});let end;while((end=buffer.indexOf('\n'))>=0){const line=buffer.slice(0,end).trim();buffer=buffer.slice(end+1);const packet=parsePacket(line);if(packet!==null&&source()==='usb'){lastData=Date.now();for(const [field,value] of Object.entries(packet)){const previous=samples[field];samples[field]={value,time:lastData,interval:previous?lastData-previous.time:null,count:(previous?.count??0)+1};}tick();}}if(buffer.length>4096)buffer='';}}catch(e){$('serialStatus').textContent=e.name==='NotFoundError'?'接続をキャンセルしました。':'接続できませんでした：'+e.message;}finally{reading=false;stop();reader?.releaseLock();reader=null;if(port){try{await port.close();}catch{}}port=null;$('connect').disabled=false;$('disconnect').disabled=true;if($('serialStatus').textContent.startsWith('USB接続中'))$('serialStatus').textContent='USB接続を終了しました。';}};

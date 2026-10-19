@@ -1,0 +1,15 @@
+import {readFileSync} from 'node:fs';
+import vm from 'node:vm';
+import assert from 'node:assert/strict';
+const source=readFileSync('app.js','utf8');
+const code=source.slice(source.indexOf("document.querySelectorAll('[data-key]').forEach"),source.indexOf('setInterval(tick,10);'));
+const buttons=[0,1,2,3,4,5].map(key=>({dataset:{key:String(key)},setPointerCapture(){}}));
+let now=1000,next=0;const timers=new Map();
+const context={document:{querySelectorAll:()=>buttons},loaded:true,active:false,manual:new Set(),performance:{now:()=>now},tick(){},$:()=>({textContent:''}),setTimeout(fn,ms){timers.set(++next,{fn,ms});return next;},clearTimeout(id){timers.delete(id);}};
+vm.runInNewContext(code,context);
+buttons[4].onclick();assert(context.manual.has(4));assert.equal(context.active,true);
+for(const t of timers.values())t.fn();timers.clear();assert.equal(context.manual.size,0);
+buttons[0].onpointerdown({preventDefault(){},pointerId:1});assert(context.manual.has(0));
+now+=1000;buttons[0].onpointerup();for(const t of timers.values())t.fn();timers.clear();assert.equal(context.manual.size,0);
+buttons[5].onpointerdown({preventDefault(){},pointerId:2});buttons[5].onpointercancel();assert.equal(context.manual.size,0);
+console.log('Pad: click, press/hold/release and cancellation passed without source-mode restriction');
