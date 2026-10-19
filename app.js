@@ -1,4 +1,4 @@
-import {initTM} from './tm-input.js?v=10';
+import {initTM} from './tm-input.js?v=11';
 import {shareId} from './protocol.js';
 import {parsePacket,mapInputs,INPUT_TIMEOUT_MS} from './mapping.js?v=7';
 import {initMappings,getRules,testSamples,showResult} from './mapping-ui.js?v=7';

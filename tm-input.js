@@ -48,10 +48,12 @@ export function initTM(onReset,onReady=()=>{}) {
       if(token!==generation){next.dispose?.();return;}
       model=next; type=selected;
       for(const name of model.getClassLabels()) {
-        assignments.set(name,'');
+        const defaultKey=BUTTONS.find(([,label])=>label===name)?.[0]??'';
+        assignments.set(name,defaultKey);
         const row=document.createElement('label'), title=document.createElement('span'), select=document.createElement('select'), meter=document.createElement('progress'), value=document.createElement('span');
         row.className='tm-class';title.textContent=name;value.textContent='—';meter.max=1;meter.value=0;
         for(const [key,label] of BUTTONS){const option=document.createElement('option');option.value=key;option.textContent=label;select.append(option);}
+        select.value=defaultKey;
         select.onchange=()=>{assignments.set(name,select.value);onReset();};
         row.append(title,select,meter,value);$('tm-classes').append(row);rows.set(name,{meter,value});
       }
@@ -60,7 +62,7 @@ export function initTM(onReset,onReady=()=>{}) {
     finally{$('tm-load').disabled=false;}
   };
   $('tm-start').onclick=async()=>{
-    stopCamera(); if(!model)return; const token=generation; $('tm-start').disabled=true;
+    stopCamera(); if(!model)return; const token=generation; $('tm-start').disabled=true;$('tm-stop').disabled=false;$('tm-status').textContent='カメラの許可を待っています…';
     try {
       const next=await navigator.mediaDevices.getUserMedia({video:{width:640,height:480},audio:false});
       if(token!==generation){next.getTracks().forEach(t=>t.stop());return;}
